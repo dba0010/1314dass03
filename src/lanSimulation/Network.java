@@ -205,11 +205,12 @@ Therefore #receiver sends a packet across the token ring network, until either
 @param report Stream that will hold a report about what happened when handling the request.
 @return Anwer #true when the print operation was succesful and #false otherwise
 	 */
-	public boolean requestWorkstationPrintsDocument(String workstation, String document,
-			String printer, Writer report) {
+	public boolean requestWorkstationPrintsDocument(String workstation, String document,String printer, Writer report) 
+	{
 		assert consistentNetwork() & hasWorkstation(workstation);
 
-		try {
+		try 
+		{
 			report.write("'");
 			report.write(workstation);
 			report.write("' requests printing of '");
@@ -217,7 +218,9 @@ Therefore #receiver sends a packet across the token ring network, until either
 			report.write("' on '");
 			report.write(printer);
 			report.write("' ...\n");
-		} catch (IOException exc) {
+		} 
+		catch (IOException exc) 
+		{
 			// just ignore
 		};
 
@@ -227,37 +230,50 @@ Therefore #receiver sends a packet across the token ring network, until either
 
 		startNode = (Node) workstations_.get(workstation);
 
-		try {
+		try 
+		{
 			report.write("\tNode '");
 			report.write(startNode.name_);
 			report.write("' passes packet on.\n");
 			report.flush();
-		} catch (IOException exc) {
+		}
+		catch (IOException exc)
+		{
 			// just ignore
 		};
 		currentNode = startNode.nextNode_;
 		while ((! packet.destination_.equals(currentNode.name_))
-				& (! packet.origin_.equals(currentNode.name_))) {
-			try {
+				& (! packet.origin_.equals(currentNode.name_))) 
+		{
+			try 
+			{
 				report.write("\tNode '");
 				report.write(currentNode.name_);
 				report.write("' passes packet on.\n");
 				report.flush();
-			} catch (IOException exc) {
+			}
+			catch (IOException exc)
+			{
 				// just ignore
-			};
+			}
 			currentNode = currentNode.nextNode_;
-		};
+		}
 
-		if (packet.destination_.equals(currentNode.name_)) {
+		if (packet.destination_.equals(currentNode.name_)) 
+		{
 			result = printDocument(currentNode, packet, report);
-		} else {
-			try {
+		} 
+		else
+		{
+			try 
+			{
 				report.write(">>> Destinition not found, print job cancelled.\n\n");
 				report.flush();
-			} catch (IOException exc) {
+			} 
+			catch (IOException exc)
+			{
 				// just ignore
-			};
+			}
 			result = false;
 		}
 

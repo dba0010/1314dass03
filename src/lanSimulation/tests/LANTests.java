@@ -23,62 +23,90 @@ import lanSimulation.internals.*;
 import lanSimulation.*;
 import junit.framework.*;
 import junit.extensions.*;
+
 import java.lang.AssertionError;
 import java.io.*;
 
-public class LANTests extends TestCase {
+public class LANTests extends TestCase 
+{
 
-	public static Test suite() {
+	public static Test suite() 
+	{
 		TestSuite testSuite = new TestSuite(LANTests.class);
 		return testSuite;
 	}
 
-	public void testBasicPacket() {
+	public void testBasicPacket() 
+	{
 		Packet packet;
 
 		packet = new Packet("c", "a");
-		assertEquals("message_",
-				packet.message_, "c");
-		assertEquals("destination_",
-				packet.destination_, "a");
-		assertEquals("origin_",
-				packet.origin_, "");
+		assertEquals("message_",packet.message_, "c");
+		assertEquals("destination_",packet.destination_, "a");
+		assertEquals("origin_",packet.origin_, "");
 		packet.origin_ = "o";
-		assertEquals("origin_ (after setting)",
-				packet.origin_, "o");
+		assertEquals("origin_ (after setting)",packet.origin_, "o");
 	}
 
-	private boolean compareFiles (String filename1, String filename2) {
+	private boolean compareFiles (String filename1, String filename2) 
+	{
 		FileInputStream f1, f2;
 		int b1 = 0, b2 = 0;
 
-		try {
+		try 
+		{
 			f1 = new FileInputStream(filename1);
-			try {
+			try 
+			{
 				f2 = new FileInputStream(filename2);
-			} catch (FileNotFoundException f2exc) {
-				try {f1.close();} catch (IOException exc) {};
+			} 
+			catch (FileNotFoundException f2exc) 
+			{
+				try 
+				{
+					f1.close();
+				}
+				catch (IOException exc) 
+				{
+				}
 				return false; // file 2 does not exist
 			}
-		} catch (FileNotFoundException f1exc) {
+		}
+		catch (FileNotFoundException f1exc) 
+		{
 			return false; //file 1 does not exist
-		};
+		}
 
-		try {
-			if (f1.available() != f2.available()) {return false;} // length of files is different
-			while ((b1 != -1) & (b2 != -1)) {
+		try 
+		{
+			if (f1.available() != f2.available()) 
+			{
+				return false;
+			} // length of files is different
+			while ((b1 != -1) & (b2 != -1)) 
+			{
 				b1 = f1.read();
 				b2 = f2.read();
-				if (b1 != b2) {return false;} // discovered one diferring character
-			};
-			if ((b1 == -1) & (b2 == -1)){
+				if (b1 != b2) 
+				{
+					return false;
+				} // discovered one diferring character
+			}
+			if ((b1 == -1) & (b2 == -1))
+			{
 				return true; // reached both end of files
-			} else {
+			}
+			else 
+			{
 				return false; // one end of file not reached
 			}
-		} catch (IOException exc) {
+		} 
+		catch (IOException exc) 
+		{
 			return false; // read error, assume one file corrupted
-		} finally {
+		}
+		finally 
+		{
 			try {f1.close();} catch (IOException exc) {};
 			try {f2.close();} catch (IOException exc) {};
 		}
@@ -245,11 +273,19 @@ the tests should work as expected.
                 super(name, exception);
             }*/
 
-	public void test() {
+	public void test() 
+	{
 	    Network network = Network.DefaultExample();
 	    StringWriter report = new StringWriter(100);
-	    network.requestWorkstationPrintsDocument("UnknownWorkstation",
-					      "does not matter", "does not matter", report);
+	    try
+	    {
+	    	network.requestWorkstationPrintsDocument("UnknownWorkstation","does not matter", "does not matter", report);
+	    	fail();
+	    }
+	    catch (AssertionError e)
+	    {
+	    	
+	    }
 	}
 
   
