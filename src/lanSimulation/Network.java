@@ -176,9 +176,9 @@ which should be treated by all nodes.
 		do {
 			try {
 				mensaje = "' accepts broadcase packet.\n";
-				logging(report, currentNode, mensaje);
+				currentNode.logging(report, this, mensaje);
 				mensaje = "' passes packet on.\n";
-				logging(report, currentNode, mensaje);
+				currentNode.logging(report, this, mensaje);
 			} catch (IOException exc) {
 				// just ignore
 			};
@@ -233,7 +233,7 @@ Therefore #receiver sends a packet across the token ring network, until either
 		try 
 		{
 			mensaje = "' passes packet on.\n";
-			logging(report, startNode, mensaje);
+			startNode.logging(report, this, mensaje);
 		}
 		catch (IOException exc)
 		{
@@ -246,7 +246,7 @@ Therefore #receiver sends a packet across the token ring network, until either
 			try 
 			{
 				mensaje = "' passes packet on.\n";
-				logging(report, currentNode, mensaje);
+				currentNode.logging(report, this, mensaje);
 			}
 			catch (IOException exc)
 			{
@@ -257,7 +257,7 @@ Therefore #receiver sends a packet across the token ring network, until either
 
 		if (packet.destination_.equals(currentNode.name_)) 
 		{
-			result = printDocument(currentNode, packet, report);
+			result = currentNode.printDocument(this, packet, report);
 		} 
 		else
 		{
@@ -276,59 +276,7 @@ Therefore #receiver sends a packet across the token ring network, until either
 		return result;
 	}
 
-	private void logging(Writer report, Node Node, String mensaje)
-			throws IOException {
-		report.write("\tNode '");
-		report.write(Node.name_);
-		report.write(mensaje);
-		report.flush();
-	}
-
-	private boolean printDocument (Node printer, Packet document, Writer report) {
-		String author = "Unknown";
-		String title = "Untitled";
-		int startPos = 0, endPos = 0;
-
-		if (printer.type_ == Node.PRINTER) {
-			try {
-				if (document.message_.startsWith("!PS")) {
-					startPos = document.message_.indexOf("author:");
-					if (startPos >= 0) {
-						endPos = document.message_.indexOf(".", startPos + 7);
-						if (endPos < 0) {endPos = document.message_.length();};
-						author = document.message_.substring(startPos + 7, endPos);};
-						startPos = document.message_.indexOf("title:");
-						if (startPos >= 0) {
-							endPos = document.message_.indexOf(".", startPos + 6);
-							if (endPos < 0) {endPos = document.message_.length();};
-							title = document.message_.substring(startPos + 6, endPos);};
-							accounting(report, author, title);
-							report.write(">>> Postscript job delivered.\n\n");
-							report.flush();
-				} else {
-					title = "ASCII DOCUMENT";
-					if (document.message_.length() >= 16) {
-						author = document.message_.substring(8, 16);};
-						accounting(report, author, title);
-						report.write(">>> ASCII Print job delivered.\n\n");
-						report.flush();
-				};
-			} catch (IOException exc) {
-				// just ignore
-			};
-			return true;
-		} else {
-			try {
-				report.write(">>> Destinition is not a printer, print job cancelled.\n\n");
-				report.flush();
-			} catch (IOException exc) {
-				// just ignore
-			};
-			return false;
-		}
-	}
-
-	private void accounting(Writer report, String author, String title)
+	public void accounting(Writer report, String author, String title)
 			throws IOException {
 		report.write("\tAccounting -- author = '");
 		report.write(author);
@@ -356,34 +304,11 @@ Write a printable representation of #receiver on the given #buf.
 		assert isInitialized();
 		Node currentNode = firstNode_;
 		do {
-			prinSwitch(buf, currentNode);
+			currentNode.printSwitch(buf, this);
 			buf.append(" -> ");
 			currentNode = currentNode.nextNode_;
 		} while (currentNode != firstNode_);
 		buf.append(" ... ");
-	}
-
-	private void prinSwitch(StringBuffer buf, Node currentNode) {
-		switch (currentNode.type_) {
-		case Node.NODE:
-			buf.append("Node ");
-			buf.append(currentNode.name_);
-			buf.append(" [Node]");
-			break;
-		case Node.WORKSTATION:
-			buf.append("Workstation ");
-			buf.append(currentNode.name_);
-			buf.append(" [Workstation]");
-			break;
-		case Node.PRINTER:
-			buf.append("Printer ");
-			buf.append(currentNode.name_);
-			buf.append(" [Printer]");
-			break;
-		default:
-			buf.append("(Unexpected)");;
-			break;
-		};
 	}
 
 	/**
@@ -398,7 +323,7 @@ Write a HTML representation of #receiver on the given #buf.
 		buf.append("\n\n<UL>");
 		do {
 			buf.append("\n\t<LI> ");
-			prinSwitch(buf, currentNode);
+			currentNode.printSwitch(buf, this);
 			buf.append(" </LI>");
 			currentNode = currentNode.nextNode_;
 		} while (currentNode != firstNode_);
