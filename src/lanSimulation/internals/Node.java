@@ -44,10 +44,6 @@ public class Node {
 	public static final byte PRINTER = 2;
 
 	/**
-    Holds the type of the Node.
-	 */
-	public byte type_;
-	/**
     Holds the name of the Node.
 	 */
 	public String name_;
@@ -63,7 +59,6 @@ Construct a <em>Node</em> with given #type and #name.
 	 */
 	public Node(byte type, String name) {
 		assert (type >= NODE) & (type <= PRINTER);
-		type_ = type;
 		name_ = name;
 		nextNode_ = null;
 	}
@@ -74,7 +69,6 @@ Construct a <em>Node</em> with given #type and #name, and which is linked to #ne
 	 */
 	public Node(byte type, String name, Node nextNode) {
 		assert (type >= NODE) & (type <= PRINTER);
-		type_ = type;
 		name_ = name;
 		nextNode_ = nextNode;
 	}
@@ -86,13 +80,14 @@ Construct a <em>Node</em> with given #type and #name, and which is linked to #ne
 		report.write(mensaje);
 		report.flush();
 	}
+	
 
 	public boolean printDocument (Network network, Packet document, Writer report) {
 		String author = "Unknown";
 		String title = "Untitled";
 		int startPos = 0, endPos = 0;
 	
-		if (type_ == Node.PRINTER) {
+		if (esPrinter(network)) {
 			try {
 				if (document.message_.startsWith("!PS")) {
 					startPos = document.message_.indexOf("author:");
@@ -130,33 +125,40 @@ Construct a <em>Node</em> with given #type and #name, and which is linked to #ne
 			return false;
 		}
 	}
+	
 
 	public void printSwitch(StringBuffer buf, Network network) {
-		switch (type_) {
-		case Node.NODE:
-			buf.append("Node ");
-			buf.append(name_);
-			buf.append(" [Node]");
-			break;
-		case Node.WORKSTATION:
-			buf.append("Workstation ");
-			buf.append(name_);
-			buf.append(" [Workstation]");
-			break;
-		case Node.PRINTER:
-			buf.append("Printer ");
-			buf.append(name_);
-			buf.append(" [Printer]");
-			break;
-		default:
-			buf.append("(Unexpected)");;
-			break;
-		};
+		buf.append("Node ");
+		buf.append(name_);
+		buf.append(" [Node]");
 	}
+	
+
+	public void printSwitchXML(StringBuffer buf, Network network) {
+		buf.append("<node>");
+		buf.append(name_);
+		buf.append("</node>");
+	}
+	
 
 	public Node sendNextNode()
 	{
 		return this.nextNode_;
+	}
+
+	public boolean esPrinter(Network network)
+	{
+		return false;
+	}
+	
+	public boolean esWorkStation(Network network)
+	{
+		return false;
+	}
+
+	public boolean noWorkStation(Network network)
+	{
+		return false;
 	}
 	
 }

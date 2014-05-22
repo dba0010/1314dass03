@@ -71,10 +71,10 @@ Currently, the network looks as follows.
 	public static Network DefaultExample () {
 		Network network = new Network (2);
 
-		Node wsFilip = new Node (Node.WORKSTATION, "Filip");
+		WorkStation wsFilip = new WorkStation (Node.WORKSTATION, "Filip");
 		Node n1 = new Node(Node.NODE, "n1");
-		Node wsHans = new Node (Node.WORKSTATION, "Hans");
-		Node prAndy = new Node (Node.PRINTER, "Andy");
+		WorkStation wsHans = new WorkStation (Node.WORKSTATION, "Hans");
+		Printer prAndy = new Printer (Node.PRINTER, "Andy");
 
 		wsFilip.nextNode_ = n1;
 		n1.nextNode_ = wsHans;
@@ -110,7 +110,7 @@ Answer whether #receiver contains a workstation with the given name.
 		if (n == null) {
 			return false;
 		} else {
-			return n.type_ == Node.WORKSTATION;
+			return n.esWorkStation(this);
 		}
 	};
 
@@ -136,15 +136,15 @@ A consistent token ring network
 		iter = workstations_.elements();
 		while (iter.hasMoreElements()) {
 			currentNode = (Node) iter.nextElement();
-			if (currentNode.type_ != Node.WORKSTATION) {return false;};
+			if (currentNode.noWorkStation(this)) {return false;};
 		};
 		//enumerate the token ring, verifying whether all workstations are registered
 		//also count the number of printers and see whether the ring is circular
 		currentNode = firstNode_;
 		while (! encountered.containsKey(currentNode.name_)) {
 			encountered.put(currentNode.name_, currentNode);
-			if (currentNode.type_ == Node.WORKSTATION) {workstationsFound++;};
-			if (currentNode.type_ == Node.PRINTER) {printersFound++;};
+			if (currentNode.esWorkStation(this)) {workstationsFound++;};
+			if (currentNode.esPrinter(this)) {printersFound++;};
 			currentNode = currentNode.sendNextNode();
 		};
 		if (currentNode != firstNode_) {return false;};//not circular
@@ -344,26 +344,7 @@ Write an XML representation of #receiver on the given #buf.
 		buf.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n<network>");
 		do {
 			buf.append("\n\t");
-			switch (currentNode.type_) {
-			case Node.NODE:
-				buf.append("<node>");
-				buf.append(currentNode.name_);
-				buf.append("</node>");
-				break;
-			case Node.WORKSTATION:
-				buf.append("<workstation>");
-				buf.append(currentNode.name_);
-				buf.append("</workstation>");
-				break;
-			case Node.PRINTER:
-				buf.append("<printer>");
-				buf.append(currentNode.name_);
-				buf.append("</printer>");
-				break;
-			default:
-				buf.append("<unknown></unknown>");;
-				break;
-			};
+			currentNode.printSwitchXML(buf, this);
 			currentNode = currentNode.sendNextNode();
 		} while (currentNode != firstNode_);
 		buf.append("\n</network>");
