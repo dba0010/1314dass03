@@ -145,7 +145,7 @@ A consistent token ring network
 			encountered.put(currentNode.name_, currentNode);
 			if (currentNode.type_ == Node.WORKSTATION) {workstationsFound++;};
 			if (currentNode.type_ == Node.PRINTER) {printersFound++;};
-			currentNode = currentNode.nextNode_;
+			currentNode = currentNode.sendNextNode();
 		};
 		if (currentNode != firstNode_) {return false;};//not circular
 		if (printersFound == 0) {return false;};//does not contain a printer
@@ -182,8 +182,8 @@ which should be treated by all nodes.
 			} catch (IOException exc) {
 				// just ignore
 			};
-			currentNode = currentNode.nextNode_;
-		} while (! packet.destination_.equals(currentNode.name_));
+			currentNode = currentNode.sendNextNode();
+		} while (atDestination(currentNode, packet));
 
 		try {
 			report.write(">>> Broadcast travelled whole token ring.\n\n");
@@ -191,6 +191,10 @@ which should be treated by all nodes.
 			// just ignore
 		};
 		return true;
+	}
+
+	private boolean atDestination(Node currentNode, Packet packet) {
+		return ! packet.destination_.equals(currentNode.name_) & (! packet.origin_.equals(currentNode.name_));
 	}    
 
 	/**
@@ -239,9 +243,8 @@ Therefore #receiver sends a packet across the token ring network, until either
 		{
 			// just ignore
 		};
-		currentNode = startNode.nextNode_;
-		while ((! packet.destination_.equals(currentNode.name_))
-				& (! packet.origin_.equals(currentNode.name_))) 
+		currentNode = startNode.sendNextNode();
+		while (atDestination(currentNode, packet)) 
 		{
 			try 
 			{
@@ -252,7 +255,7 @@ Therefore #receiver sends a packet across the token ring network, until either
 			{
 				// just ignore
 			}
-			currentNode = currentNode.nextNode_;
+			currentNode = currentNode.sendNextNode();
 		}
 
 		if (packet.destination_.equals(currentNode.name_)) 
@@ -306,7 +309,7 @@ Write a printable representation of #receiver on the given #buf.
 		do {
 			currentNode.printSwitch(buf, this);
 			buf.append(" -> ");
-			currentNode = currentNode.nextNode_;
+			currentNode = currentNode.sendNextNode();
 		} while (currentNode != firstNode_);
 		buf.append(" ... ");
 	}
@@ -325,7 +328,7 @@ Write a HTML representation of #receiver on the given #buf.
 			buf.append("\n\t<LI> ");
 			currentNode.printSwitch(buf, this);
 			buf.append(" </LI>");
-			currentNode = currentNode.nextNode_;
+			currentNode = currentNode.sendNextNode();
 		} while (currentNode != firstNode_);
 		buf.append("\n\t<LI>...</LI>\n</UL>\n\n</BODY>\n</HTML>\n");
 	}
@@ -361,7 +364,7 @@ Write an XML representation of #receiver on the given #buf.
 				buf.append("<unknown></unknown>");;
 				break;
 			};
-			currentNode = currentNode.nextNode_;
+			currentNode = currentNode.sendNextNode();
 		} while (currentNode != firstNode_);
 		buf.append("\n</network>");
 	}

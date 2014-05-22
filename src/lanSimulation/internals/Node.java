@@ -154,4 +154,9 @@ Construct a <em>Node</em> with given #type and #name, and which is linked to #ne
 		};
 	}
 
+	public Node sendNextNode()
+	{
+		return this.nextNode_;
+	}
+	
 }
